@@ -30,12 +30,14 @@ Run the provided SQL script in your PostgreSQL client (pgAdmin/DBeaver) to:
 
 Clean up old tables.
 
-Create schema (users, provinces, wards, orders).
-
-Seed sample data.
+Create schema (users, provinces, wards, orders) and insert sample data (sample.sql).
 
 ### 4. Run Server
 
 ```bash
 npm run dev
 ```
+
+### 5. References
+
+Base code cloned and adapted from: [csc13008-23ktpm1/jwt](https://github.com/nguyenkha/csc13008-23ktpm1/tree/main/jwt)
