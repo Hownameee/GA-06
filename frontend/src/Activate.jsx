@@ -1,19 +1,21 @@
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { string, z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import ApiContext from "./ApiContext";
 import { useNavigate } from "react-router-dom";
 
-export default function Login() {
+export default function Activate() {
   // Load API url and key from context
   const api = useContext(ApiContext);
   const navigate = useNavigate();
 
   // Zod schema for validation
   const schema = z.object({
-    email: z.email(),
-    password: z.string().min(6),
+    otp: z
+      .string()
+      .length(6, { message: "OTP must be exactly 6 digits" }) // lenght 6
+      .regex(/^\d+$/, { message: "OTP must contain only numbers" }),
   });
 
   const {
@@ -26,30 +28,23 @@ export default function Login() {
 
   const onSubmit = (data) => {
     // Submit data to API
-    fetch(`${api.url}/auth/login`, {
+    fetch(`${api.url}/auth/activate`, {
       // Must use POST to submit data
       method: "POST",
       headers: {
-        apikey: api.key,
+        Authorization: `Bearer ${api.key}`,
         // Must be JSON
         "Content-Type": "application/json",
       },
       // Create JSON from object
       body: JSON.stringify({
-        email: data.email,
-        password: data.password,
+        otp: data.otp,
       }),
     }).then(async (result) => {
-      if (result.status == 409) {
+      // 201 => Created
+      if (result.status === 200) {
         const json = await result.json();
-        console.log("Unactivated user!");
-        // For retrieve email in backend
-        api.setKey(json.token);
-        localStorage.setItem("token", json.token);
-        navigate("/activate");
-      } else if (result.status === 200) {
-        const json = await result.json();
-        console.log("Login successfully!", json);
+        console.log("Activate successfully!", json);
         // For current load
         api.setKey(json.token);
         // For next page load
@@ -70,12 +65,12 @@ export default function Login() {
       {/* Email */}
       <div>
         <label className="block mb-1 font-semibold" htmlFor="email">
-          Email
+          OTP code
         </label>
         <input
           id="recipient"
-          type="email"
-          {...register("email")}
+          type="text"
+          {...register("otp")}
           className={`w-full px-3 py-2 border rounded ${
             errors.email ? "border-red-500" : "border-gray-300"
           }`}
@@ -85,29 +80,11 @@ export default function Login() {
         )}
       </div>
 
-      {/* Password */}
-      <div>
-        <label className="block mb-1 font-semibold" htmlFor="password">
-          Password
-        </label>
-        <input
-          id="password"
-          type="password"
-          {...register("password")}
-          className={`w-full px-3 py-2 border rounded ${
-            errors.password ? "border-red-500" : "border-gray-300"
-          }`}
-        />
-        {errors.password && (
-          <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
-        )}
-      </div>
-
       <button
         type="submit"
         className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
       >
-        Login
+        Active
       </button>
     </form>
   );

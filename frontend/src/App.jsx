@@ -7,6 +7,7 @@ import Register from './Register';
 import Login from './Login';
 import Me from './Me';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
+import Activate from './Activate';
 
 function App() {
   const apiUrl = 'http://localhost:4000';
@@ -20,6 +21,7 @@ function App() {
           <Route path='/register' element={<Register />}></Route>
           <Route path='/login' element={<Login />}></Route>
           <Route path='/me' element={<Me />}></Route>
+          <Route path='/activate' element={<Activate />}></Route>
         </Routes>
       </Router>
     </ApiContext.Provider>

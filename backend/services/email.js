@@ -1,20 +1,26 @@
-import sgMail from '@sendgrid/mail'
-import dotenv from 'dotenv'
+import dotenv from "dotenv";
+import nodemailer from "nodemailer";
 
 dotenv.config();
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-const EMAIL_FROM = process.env.EMAIL_FROM;
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL,
+    pass: process.env.PASSWORD,
+  },
+});
 
 const service = {
   send: async function (to, subject, text) {
-    const msg = {
+    return transporter.sendMail({
+      from: "Authentication from ThinkLab",
       to: to,
-      from: EMAIL_FROM,
-      subject,
-      text,
-    };
-    return sgMail.send(msg);
+      subject: subject,
+      text: text,
+    });
   },
 };
 

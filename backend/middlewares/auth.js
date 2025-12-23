@@ -4,6 +4,7 @@ export default async function (req, res, next) {
   const authorization = req.header('Authorization');
   // Authorization: Bearer ey...
   const token = authorization?.replace('Bearer ', '');
+  console.log(token)
   if (token) {
     // Validate token
     const result = await authService.validateToken(token);

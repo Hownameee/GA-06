@@ -1,4 +1,4 @@
-import { eq, or } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import db from '../db/index.js';
 import { orders } from '../db/schema.js';
 

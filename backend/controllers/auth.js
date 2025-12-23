@@ -1,6 +1,6 @@
-import userService from '../services/user.js'
-import authService from '../services/auth.js'
-import emailService from '../services/email.js'
+import userService from "../services/user.js";
+import authService from "../services/auth.js";
+import emailService from "../services/email.js";
 
 const controller = {
   register: async function (req, res) {
@@ -10,7 +10,7 @@ const controller = {
     if (found) {
       // Conflict
       return res.status(409).json({
-        message: 'Email exists',
+        message: "Email exists",
       });
     }
     const otp = await authService.generateOTP();
@@ -20,7 +20,11 @@ const controller = {
       otp,
     });
     // Send welcome email
-    await emailService.send(email, 'Welcome to Web Application Development Demo', `Your OTP is ${otp}`);
+    await emailService.send(
+      email,
+      "Welcome to Web Application Development Demo",
+      `Your OTP is ${otp}`
+    );
 
     // Created
     res.status(201).json({
@@ -30,21 +34,18 @@ const controller = {
   },
 
   login: async function (req, res) {
-    const { email, password } = req.body;
+    const { password } = req.body;
     // Check if email exists
-    const found = await userService.findByEmail(email);
-    if (!found) {
-      // Unauthorized
-      return res.status(401).json({
-        message: 'Email/Password invalid',
-      });
-    }
+    const found = req.found;
     // Check password
-    const result = await authService.validatePassword(password, found.encryptedPassword);
+    const result = await authService.validatePassword(
+      password,
+      found.encryptedPassword
+    );
     if (!result) {
       // Unauthorized
       return res.status(401).json({
-        message: 'Email/Password invalid',
+        message: "Email/Password invalid",
       });
     }
     // JWT token
@@ -68,16 +69,21 @@ const controller = {
   },
 
   activate: async function (req, res) {
-    const { email, otp } = req.body;
-    const found = await userService.findByEmail(email);
+    const { otp } = req.body;
+    const found = await userService.findByEmail(req.currentUser.email);
     if (!found || found.isActivte || otp !== found.otp) {
       return res.unauthorized();
     }
     found.otp = null;
     found.isActivte = true;
     await userService.update(found);
-    res.ok({});
-  }
-}
+    const token = await authService.generateToken({
+      id: found.id,
+      email: found.email,
+      isAdmin: found.isAdmin,
+    });
+    res.ok({ token });
+  },
+};
 
 export default controller;
